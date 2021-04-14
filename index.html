@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title></title>
+  <link rel="stylesheet" href="./static/css/reset.css">
+  <link rel="stylesheet" href="./static/css/animate.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+</head>
+
+<body>
+  <!-- <div class="animate__animated animate__bounce"></div> -->
+  <div class="drawer"></div>
+  <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.slim.min.js"></script>
+  <script>
+    (function () {
+      let arr = ['列表1', '列表2', '列表3', '列表4', '列表5'];
+      function render() {
+        let str = ``
+        for (let i = 0; i < arr.length; i++) {
+          str += `<div>${arr[i]}</div>`
+        }
+        $('.drawer').html(str)
+      }
+      function throttle(fn, delay = 100) {
+        let timer = null;
+        return function () {
+          if (timer) {
+            return;
+          }
+          timer = setTimeout(() => {
+            fn.apply(this, arguments);
+            timer = null;
+          }, delay)
+        }
+      }
+      render()
+      $(".drawer").on("mousedown", "div", function (e) {
+        let positionDiv = $(this);
+        let basis = {
+          moveStep: 0,//moveing steps,
+          _height: positionDiv.height(),//selected dom height
+          _index: positionDiv.index(),//selected dom index
+          startY: e.pageY,//start Y axis
+          spliceIndex: 0,//splice index
+          moveStepUp: 0,//dome back height
+        }
+        positionDiv.css({ 'z-index': 1, 'transition': 'none' });
+        positionDiv.on('mousemove', function (e) {
+          let axisY = e.pageY - basis.startY;
+          positionDiv.css({ "transform": 'translateY(' + axisY + 'px)' })
+          basis.moveStep = Math.round(Math.abs(axisY) / basis._height);
+          basis.moveStepUp = (Math.abs(axisY) / basis._height);
+          Object.values($(".drawer div")).map((v, i) => {
+            if ((Math.abs(axisY) % basis._height) / basis._height > .5) {
+              if (axisY < 0) {//上
+                if (i == basis._index - basis.moveStep) {
+                  $(v).css({ 'transform': 'translateY(' + basis._height + 'px)' })
+                  basis.spliceIndex = basis._index - basis.moveStep
+                }
+              } else {
+                if (i == basis._index + basis.moveStep) {
+                  $(v).css({ 'transform': 'translateY(' + -basis._height + 'px)' })
+                  basis.spliceIndex = basis._index + basis.moveStep
+                }
+              }
+            } else {
+              if (axisY < 0 && basis.moveStep > basis.moveStepUp) {
+                if (i == basis._index - basis.moveStep) {
+                  $(v).css({ 'transform': 'translateY(0px)' })
+                  basis.spliceIndex = basis._index + basis.moveStep;
+                }
+              }
+              if (axisY > 0 && basis.moveStep > basis.moveStepUp) {
+                if (i == basis._index + basis.moveStep) {
+                  $(v).css({ 'transform': 'translateY(0px)' })
+                  basis.spliceIndex = basis._index - basis.moveStep;
+                }
+              }
+            }
+          })
+        })
+        positionDiv.mouseup(function () {
+          positionDiv.off('mousemove');
+          positionDiv.css({ 'z-index': 0 })
+          basis.startY = 0;
+          if (basis.moveStep) {
+            arr.splice(basis.spliceIndex, 0, arr.splice(basis._index, 1)[0])
+          }
+          render()
+        });
+      })
+    }())
+  </script>
+</body>
+
+</html>

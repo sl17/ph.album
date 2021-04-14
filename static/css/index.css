@@ -1,0 +1,17 @@
+.drawer{
+  position: fixed;
+  right: 0;
+  top: 0;
+  background-color: bisque;
+  width: 200px;
+  height: 100vh;
+}
+.drawer>div{
+  position: relative;
+  height: 36px;
+  line-height: 36px;
+  text-align: center;
+  transition: all .33s ease;
+  background: #dadada;
+  outline: 1px #fff solid;
+}
